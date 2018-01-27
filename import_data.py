@@ -41,4 +41,5 @@ def import_data(file_regex, index_col_val=None, parse_dates=None,
         list_.append(df)
     ret = pd.concat(list_)
     ret = ret[ret.index.notnull()]
+    ret.on_promotion.replace(('Y', 'N'), (1, 0), inplace=True)
     return ret
