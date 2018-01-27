@@ -3,8 +3,15 @@ import pandas as pd
 import glob
 
 
-def import_data(file_regex, index_col_val=None,
-                format_str=None):
+def parse_date(given_date, date_format):
+    try:
+        return pd.datetime.strptime(given_date, date_format)
+    except TypeError:
+        return pd.NaT
+
+
+def import_data(file_regex, index_col_val=None, parse_dates=None,
+                date_format=None):
     """
         takes in a regular expression describing the filepath to
          the data files and returns a pandas dataFrame
@@ -14,7 +21,7 @@ def import_data(file_regex, index_col_val=None,
          
          Usage2:
          var_name = import_data.import_data("./hackathon_data/*20*.dat",
-          "column of dates", "format of dates")
+          "column to index with", "column of dates", "format of dates")
 
     """
     all_files = glob.glob(file_regex)
@@ -23,12 +30,15 @@ def import_data(file_regex, index_col_val=None,
     for file_ in all_files:
         if index_col_val is not None:
             df = pd.read_csv(file_, index_col=index_col_val)
+        elif index_col_val is not None and parse_dates is not None and \
+                        date_format is not None:
+            df = pd.read_csv(file_, parse_dates=[parse_dates],
+                             index_col=index_col_val,
+                             date_parser=lambda x:
+                             parse_date(x, date_format))
         else:
             df = pd.read_csv(file_)
         list_.append(df)
     ret = pd.concat(list_)
-    if index_col_val is not None and format_str is not None:
-        pd.to_datetime(ret.index, format=format_str,
-                       errors='ignore')
-        ret.sort_index(axis=0)
+    ret = ret[ret.index.notnull()]
     return ret
