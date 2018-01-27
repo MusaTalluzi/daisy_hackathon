@@ -6,7 +6,7 @@ import glob
 def parse_date(given_date, date_format):
     try:
         return pd.datetime.strptime(given_date, date_format)
-    except TypeError:
+    except ValueError:
         return pd.NaT
 
 
@@ -28,14 +28,14 @@ def import_data(file_regex, index_col_val=None, parse_dates=None,
     all_files.sort()
     list_ = []
     for file_ in all_files:
-        if index_col_val is not None:
-            df = pd.read_csv(file_, index_col=index_col_val)
-        elif index_col_val is not None and parse_dates is not None and \
+        if index_col_val is not None and parse_dates is not None and \
                         date_format is not None:
             df = pd.read_csv(file_, parse_dates=[parse_dates],
-                             index_col=index_col_val,
-                             date_parser=lambda x:
-                             parse_date(x, date_format))
+                        index_col=index_col_val,
+                        date_parser=lambda x:
+                        parse_date(x, date_format))
+        elif index_col_val is not None:
+            df = pd.read_csv(file_, index_col=index_col_val)
         else:
             df = pd.read_csv(file_)
         list_.append(df)
