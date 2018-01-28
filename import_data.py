@@ -46,4 +46,11 @@ def import_data(file_regex, index_col_val=None, parse_dates=None,
     ret = pd.concat(list_)
     ret = ret[ret.index.notnull()]
     ret.on_promotion.replace(('Y', 'N'), (1, 0), inplace=True)
+    
     return ret
+
+if __name__ == '__main__':
+    data = import_data(file_regex="./hackathon_data/*20*.dat",
+                        parse_dates="date_", date_format="%Y%m%d")
+    data.to_csv('./hackathon_data/test_data.csv')
+    print(data.head())
